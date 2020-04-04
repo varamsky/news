@@ -12,7 +12,7 @@ This is a simple news app using Flutter. The news API used here is https://newsa
 
 <img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215117.jpeg"/>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215210.jpeg"/>
 
 <img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215252.jpeg"/>
