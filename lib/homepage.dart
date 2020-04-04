@@ -1,17 +1,15 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:news/loginPage.dart';
 import 'package:news/newsDetailScreen.dart';
 import 'package:news/newsUnits.dart';
-//import 'package:news/loadData.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class HomePage extends StatefulWidget {
-  bool isLogin;
+  String category = 'general';
+
 
   HomePage({
-    this.isLogin = false,
+    this.category = 'general',
   });
 
   @override
@@ -22,49 +20,91 @@ class _HomePageState extends State<HomePage> {
   NewsUnits newsUnits;
   List<Article> articleList = List();
 
+  List<String> categoryList = ['general','business', 'health', 'science', 'sports', 'technology', 'entertainment'];
+
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
   var width;
+
+  Future _onRefresh() async {
+    /*setState(() {
+
+    });*/
+    return await http
+        .get(
+            'https://newsapi.org/v2/top-headlines?country=in&apiKey=5009b812cc9449f191c3528e1f695c15')
+        .then((value) => () {
+              setState(() {});
+            });
+  }
 
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     return SafeArea(
-      child: Scaffold(
-        drawer: Drawer(
-          child: Container(
-            color: Theme.of(context).backgroundColor,
-            child: ListTile(
-              onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginPage())),
-              title: Text((widget.isLogin)?'Logout':'Login',style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.normal,color: Colors.white),),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15.0),
+        child: Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          appBar: AppBar(
+            elevation: 0.0,
+            centerTitle: true,
+            title: Text('${(widget.category == 'general')?'NEWS': (widget.category).toUpperCase()} FEED'),
+          ),
+          body: RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: _onRefresh,
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categoryList.length,
+                    itemBuilder: (BuildContext context,int index){
+                      return Card(
+                        child: InkWell(
+                          onTap: (){
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage(category: categoryList[index],)));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text('${categoryList[index]}',style: TextStyle(color: Colors.white),),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: FutureBuilder(
+                      future: http.get(
+                          'https://newsapi.org/v2/top-headlines?country=in&category=${widget.category}&apiKey=5009b812cc9449f191c3528e1f695c15'),
+                      initialData: "Loading text..",
+                      builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
+                        if (asyncSnapshot.connectionState == ConnectionState.done) {
+                          //_refreshIndicatorKey.currentState.deactivate();
+                          newsUnits = newsUnitsFromJson(asyncSnapshot.data.body);
+                          for (int i = 0; i < newsUnits.articles.length; ++i)
+                            articleList.add(newsUnits.articles[i]);
+                          return ListView.builder(
+                            itemCount: newsUnits.articles.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: buildCard(index),
+                              );
+                            },
+                          );
+                        } else
+                          return Center(child: CircularProgressIndicator());
+                      }),
+                ),
+              ],
             ),
           ),
         ),
-        backgroundColor: Theme.of(context).backgroundColor,
-        appBar: AppBar(
-          elevation: 0.0,
-          centerTitle: true,
-          title: Text('NEWS FEED'),
-        ),
-        body: FutureBuilder(
-            future: http.get(
-                'https://newsapi.org/v2/top-headlines?country=in&apiKey=5009b812cc9449f191c3528e1f695c15'),
-            initialData: "Loading text..",
-            builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
-              if (asyncSnapshot.connectionState == ConnectionState.done) {
-                newsUnits = newsUnitsFromJson(asyncSnapshot.data.body);
-                for (int i = 0; i < newsUnits.articles.length; ++i)
-                  articleList.add(newsUnits.articles[i]);
-                return ListView.builder(
-                  itemCount: newsUnits.articles.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: buildCard(index),
-                    );
-                  },
-                );
-              } else
-                return Center(child: CircularProgressIndicator());
-            }),
       ),
     );
   }
@@ -102,12 +142,17 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             //CHECKING WHETHER THE IMAGE IS PRESENT OR NOT
             (articleList[index].urlToImage != null)
-                ? FadeInImage.memoryNetwork(
-                    placeholderCacheWidth: 300,
-                    placeholderCacheHeight: 150,
-                    fit: BoxFit.fill,
-                    placeholder: kTransparentImage,
-                    image: articleList[index].urlToImage,
+                ? ClipRRect(
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10.0),
+                        topLeft: Radius.circular(10.0)),
+                    child: FadeInImage.memoryNetwork(
+                      placeholderCacheWidth: 300,
+                      placeholderCacheHeight: 150,
+                      fit: BoxFit.fill,
+                      placeholder: kTransparentImage,
+                      image: articleList[index].urlToImage,
+                    ),
                   )
                 : Container(
                     width: width,
