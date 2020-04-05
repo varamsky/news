@@ -1,13 +1,15 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'package:news/themes.dart';
 //import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class WebLaunch extends StatelessWidget {
   final String url;
 
   WebLaunch({this.url});
-
   @override
   Widget build(BuildContext context) {
     print(url);
@@ -17,232 +19,54 @@ class WebLaunch extends StatelessWidget {
         title: new Text("Widget webview"),
       ),
     );*/
-    Scaffold(
-      appBar: AppBar(
-        title: Text('WebPage'),
-        centerTitle: true,
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: (){
-
-              },
-          ),
-        ],
-      ),
-      body: WebView(
-        initialUrl: url,
-        javascriptMode: JavascriptMode.unrestricted,
-      ),
-    );
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
-
-void main() => runApp(MaterialApp(home: WebLaunch()));
-
-class WebLaunch extends StatefulWidget {
-  String url;
-
-  WebLaunch({this.url});
-  @override
-  _WebLaunchState createState() => _WebLaunchState();
-}
-
-class _WebLaunchState extends State<WebLaunch> {
-  Completer<WebViewController> _controller = Completer<WebViewController>();
-  final Set<String> _favorites = Set<String>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Wikipedia Explorer'),
-        // This drop down menu demonstrates that Flutter widgets can be shown over the web view.
-        actions: <Widget>[
-          NavigationControls(_controller.future),
-          Menu(_controller.future, () => _favorites),
-        ],
-      ),
-      body: WebView(
-        initialUrl: 'https://en.wikipedia.org/wiki/Kraken',
-        onWebViewCreated: (WebViewController webViewController) {
-          _controller.complete(webViewController);
-        },
-      ),
-      floatingActionButton: _bookmarkButton(),
-    );
-  }
-
-  _bookmarkButton() {
-    return FutureBuilder<WebViewController>(
-      future: _controller.future,
-      builder:
-          (BuildContext context, AsyncSnapshot<WebViewController> controller) {
-        if (controller.hasData) {
-          return FloatingActionButton(
-            onPressed: () async {
-              var url = await controller.data.currentUrl();
-              _favorites.add(url);
-              Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text('Saved $url for later reading.')),
-              );
-            },
-            child: Icon(Icons.favorite),
-          );
-        }
-        return Container();
-      },
-    );
-  }
-}
-
-class Menu extends StatelessWidget {
-  Menu(this._webViewControllerFuture, this.favoritesAccessor);
-  final Future<WebViewController> _webViewControllerFuture;
-  // TODO(efortuna): Come up with a more elegant solution for an accessor to this than a callback.
-  final Function favoritesAccessor;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _webViewControllerFuture,
-      builder:
-          (BuildContext context, AsyncSnapshot<WebViewController> controller) {
-        if (!controller.hasData) return Container();
-        return PopupMenuButton<String>(
-          onSelected: (String value) async {
-            if (value == 'Email link') {
-              var url = await controller.data.currentUrl();
-              await launch(
-                  'mailto:?subject=Check out this cool Wikipedia page&body=$url');
-            } else {
-              var newUrl = await Navigator.push(context,
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    return FavoritesPage(favoritesAccessor());
-                  }));
-              Scaffold.of(context).removeCurrentSnackBar();
-              if (newUrl != null) controller.data.loadUrl(newUrl);
-            }
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuItem<String>>[
-            const PopupMenuItem<String>(
-              value: 'Email link',
-              child: Text('Email link'),
+    SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('WebPage',style: TextStyle(color: (isDark)?darkTextColor:lightTextColor),),
+          iconTheme: (isDark)?IconThemeData(color: Colors.white):IconThemeData(color: Colors.black),
+          backgroundColor: (isDark)?darkTheme.backgroundColor:lightTheme.backgroundColor,
+          centerTitle: true,
+          actions: <Widget>[
+            Builder(
+              builder: (context) => IconButton(icon: Icon(Icons.content_copy), tooltip: 'Copy Url',onPressed: () {
+                Clipboard.setData(ClipboardData(text: url)).then((value){
+                  final snackBar = SnackBar(
+                    content: Text('Copied to Clipboard'),
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      onPressed: () {},
+                    ),
+                  );
+                  Scaffold.of(context).showSnackBar(snackBar);
+                });
+              }),
             ),
-            const PopupMenuItem<String>(
-              value: 'See Favorites',
-              child: Text('See Favorites'),
-            ),
+            IconButton(icon: Icon(Icons.language), tooltip: 'Open in Browser',onPressed: () async {
+              await _launchURL(url);
+            }),
           ],
-        );
-      },
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  FavoritesPage(this.favorites);
-  final Set<String> favorites;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Favorite pages')),
-      body: ListView(
-          children: favorites
-              .map((url) => ListTile(
-              title: Text(url), onTap: () => Navigator.pop(context, url)))
-              .toList()),
-    );
-  }
-}
-
-class NavigationControls extends StatelessWidget {
-  const NavigationControls(this._webViewControllerFuture)
-      : assert(_webViewControllerFuture != null);
-
-  final Future<WebViewController> _webViewControllerFuture;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<WebViewController>(
-      future: _webViewControllerFuture,
-      builder:
-          (BuildContext context, AsyncSnapshot<WebViewController> snapshot) {
-        final bool webViewReady =
-            snapshot.connectionState == ConnectionState.done;
-        final WebViewController controller = snapshot.data;
-        return Row(
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              onPressed: !webViewReady
-                  ? null
-                  : () => navigate(context, controller, goBack: true),
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_forward_ios),
-              onPressed: !webViewReady
-                  ? null
-                  : () => navigate(context, controller, goBack: false),
-            ),
-          ],
-        );
-      },
+        ),
+        body: FutureBuilder(
+            future: http.get(url),
+            initialData: "Loading text..",
+            builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
+              if (asyncSnapshot.connectionState == ConnectionState.done) {
+                return WebView(
+                  initialUrl: url,
+                  javascriptMode: JavascriptMode.unrestricted,
+                );
+              } else
+                return Center(child: CircularProgressIndicator());
+            }),
+      ),
     );
   }
 
-  navigate(BuildContext context, WebViewController controller,
-      {bool goBack: false}) async {
-    bool canNavigate =
-    goBack ? await controller.canGoBack() : await controller.canGoForward();
-    if (canNavigate) {
-      goBack ? controller.goBack() : controller.goForward();
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
     } else {
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-            content: Text("No ${goBack ? 'back' : 'forward'} history item")),
-      );
+      throw 'Could not launch $url';
     }
   }
-}*/
+}

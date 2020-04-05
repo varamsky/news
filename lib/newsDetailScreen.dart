@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:news/newsUnits.dart';
 import 'package:news/webLaunch.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:news/themes.dart';
 
 class NewsDetailScreen extends StatelessWidget {
   final String agoText;
@@ -23,7 +23,8 @@ class NewsDetailScreen extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15.0),
         child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor:
+              (isDark) ? darkTheme.backgroundColor : lightTheme.backgroundColor,
           body: SingleChildScrollView(
             child: Stack(
               children: <Widget>[
@@ -39,7 +40,7 @@ class NewsDetailScreen extends StatelessWidget {
                       child: Text(
                         article.title,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: (isDark) ? darkTextColor : lightTextColor,
                           fontSize: 18.0,
                         ),
                       ),
@@ -52,7 +53,7 @@ class NewsDetailScreen extends StatelessWidget {
                           child: Text(
                             article.source.name,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: (isDark) ? darkTextColor : lightTextColor,
                               fontSize: 15.0,
                             ),
                           ),
@@ -75,7 +76,7 @@ class NewsDetailScreen extends StatelessWidget {
                           child: Text(
                             agoText,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: (isDark) ? darkTextColor : lightTextColor,
                               fontSize: 15.0,
                             ),
                           ),
@@ -87,7 +88,7 @@ class NewsDetailScreen extends StatelessWidget {
                       child: Text(
                         article.description,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: (isDark) ? darkTextColor : lightTextColor,
                           fontSize: 15.0,
                         ),
                       ),
@@ -97,7 +98,7 @@ class NewsDetailScreen extends StatelessWidget {
                       child: Text(
                         article.content,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: (isDark) ? darkTextColor : lightTextColor,
                           fontSize: 18.0,
                         ),
                       ),
@@ -122,9 +123,10 @@ class NewsDetailScreen extends StatelessWidget {
                     ),
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                          builder: (context) => WebLaunch(
-                                url: article.url,
-                              )),
+                        builder: (context) => WebLaunch(
+                          url: article.url,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -134,17 +136,5 @@ class NewsDetailScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  _launchURL() async {
-    if (await canLaunch(article.url)) {
-      return Scaffold(
-        appBar: AppBar(),
-        //body: launch(article.url,forceWebView: true,enableJavaScript: true,),
-      );
-      //await launch(article.url,forceWebView: true,enableJavaScript: true,);
-    } else {
-      throw 'Could not launch ${article.url}';
-    }
   }
 }

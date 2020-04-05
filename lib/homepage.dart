@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:news/newsDetailScreen.dart';
 import 'package:news/newsUnits.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:news/themes.dart';
 
 class HomePage extends StatefulWidget {
   String category = 'general';
-
 
   HomePage({
     this.category = 'general',
@@ -20,16 +20,21 @@ class _HomePageState extends State<HomePage> {
   NewsUnits newsUnits;
   List<Article> articleList = List();
 
-  List<String> categoryList = ['general','business', 'health', 'science', 'sports', 'technology', 'entertainment'];
+  List<String> categoryList = [
+    'general',
+    'business',
+    'health',
+    'science',
+    'sports',
+    'technology',
+    'entertainment'
+  ];
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   var width;
 
   Future _onRefresh() async {
-    /*setState(() {
-
-    });*/
     return await http
         .get(
             'https://newsapi.org/v2/top-headlines?country=in&apiKey=5009b812cc9449f191c3528e1f695c15')
@@ -45,11 +50,39 @@ class _HomePageState extends State<HomePage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15.0),
         child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor:
+              (isDark) ? darkTheme.backgroundColor : lightTheme.backgroundColor,
+          drawer: Drawer(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Switch(
+                  value: isDark,
+                  onChanged: (value) {
+                    setState(() {
+                      isDark = value;
+                    });
+                  },
+                ),
+                Text('Dark Theme'),
+              ],
+            ),
+          ),
           appBar: AppBar(
+            iconTheme: (isDark)
+                ? IconThemeData(color: Colors.white)
+                : IconThemeData(color: Colors.black),
+            backgroundColor: (isDark)
+                ? darkTheme.backgroundColor
+                : lightTheme.backgroundColor,
             elevation: 0.0,
             centerTitle: true,
-            title: Text('${(widget.category == 'general')?'NEWS': (widget.category).toUpperCase()} FEED'),
+            title: Text(
+              '${(widget.category == 'general') ? 'NEWS' : (widget.category).toUpperCase()} FEED',
+              style:
+                  TextStyle(color: (isDark) ? darkTextColor : lightTextColor),
+            ),
           ),
           body: RefreshIndicator(
             key: _refreshIndicatorKey,
@@ -61,15 +94,30 @@ class _HomePageState extends State<HomePage> {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: categoryList.length,
-                    itemBuilder: (BuildContext context,int index){
+                    itemBuilder: (BuildContext context, int index) {
                       return Card(
+                        color: (isDark)
+                            ? darkTheme.cardColor
+                            : lightTheme.cardColor,
                         child: InkWell(
-                          onTap: (){
-                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage(category: categoryList[index],)));
+                          onTap: () {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(
+                                  category: categoryList[index],
+                                ),
+                              ),
+                            );
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
-                            child: Text('${categoryList[index]}',style: TextStyle(color: Colors.white),),
+                            child: Text(
+                              '${categoryList[index]}',
+                              style: TextStyle(
+                                  color: (isDark)
+                                      ? darkTextColor
+                                      : lightTextColor),
+                            ),
                           ),
                         ),
                       );
@@ -82,10 +130,13 @@ class _HomePageState extends State<HomePage> {
                       future: http.get(
                           'https://newsapi.org/v2/top-headlines?country=in&category=${widget.category}&apiKey=5009b812cc9449f191c3528e1f695c15'),
                       initialData: "Loading text..",
-                      builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
-                        if (asyncSnapshot.connectionState == ConnectionState.done) {
+                      builder:
+                          (BuildContext context, AsyncSnapshot asyncSnapshot) {
+                        if (asyncSnapshot.connectionState ==
+                            ConnectionState.done) {
                           //_refreshIndicatorKey.currentState.deactivate();
-                          newsUnits = newsUnitsFromJson(asyncSnapshot.data.body);
+                          newsUnits =
+                              newsUnitsFromJson(asyncSnapshot.data.body);
                           for (int i = 0; i < newsUnits.articles.length; ++i)
                             articleList.add(newsUnits.articles[i]);
                           return ListView.builder(
@@ -137,7 +188,7 @@ class _HomePageState extends State<HomePage> {
         elevation: 0.0,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        color: Theme.of(context).cardColor,
+        color: (isDark) ? darkTheme.cardColor : lightTheme.cardColor,
         child: Column(
           children: <Widget>[
             //CHECKING WHETHER THE IMAGE IS PRESENT OR NOT
@@ -163,7 +214,7 @@ class _HomePageState extends State<HomePage> {
               child: Text(
                 articleList[index].title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: (isDark) ? darkTextColor : lightTextColor,
                   fontSize: 18.0,
                 ),
               ),
@@ -175,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     articleList[index].source.name,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: (isDark) ? darkTextColor : lightTextColor,
                       fontSize: 15.0,
                     ),
                   ),
@@ -196,7 +247,7 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     agoText,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: (isDark) ? darkTextColor : lightTextColor,
                       fontSize: 15.0,
                     ),
                   ),
