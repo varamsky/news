@@ -2,17 +2,32 @@
 
 This is a simple news app using Flutter. The news API used here is https://newsapi.org/.
   
-### TODO
-1. Light and dark themes.
-2. Copy Link and Open in Broswer options in web-view page.
-
-
   <hr>
-<img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215059.jpeg"/>
-
-<img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215117.jpeg"/>
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215210.jpeg"/>
-
-<img align="left" width="400" height="700" src="https://github.com/varamsky/news/blob/master/Screenshot_20200404-215252.jpeg"/>
+<div style="text-align: center">
+  <table>
+    <th colspan=3>Dark Theme</th>
+    <tr>
+  <td style="text-align: center">
+    <img align="left" width="400" src="https://github.com/varamsky/news/blob/master/Screenshot_20200405-161138.jpeg"/>
+</td>
+<td style="text-align: center">
+  <img align="left" width="400" src="https://github.com/varamsky/news/blob/master/Screenshot_20200405-161134.jpeg"/>
+</td>
+  <td style="text-align: center">
+    <img align="left" width="400" src="https://github.com/varamsky/news/blob/master/Screenshot_20200405-161144.jpeg"/>
+</td>
+</tr>
+    <th colspan=3>Light Theme</th>
+  <tr>
+  <td style="text-align: center">
+    <img align="left" width="400" src="https://github.com/varamsky/news/blob/master/Screenshot_20200405-161223.jpeg"/>
+</td>
+<td style="text-align: center">
+  <img align="left" width="400" src="https://github.com/varamsky/news/blob/master/Screenshot_20200405-161241.jpeg"/>
+</td>
+  <td style="text-align: center">
+    <img align="left" width="400" src="https://github.com/varamsky/news/blob/master/Screenshot_20200405-161252.jpeg"/>
+</td>
+</tr>
+  </table>
+</div>
